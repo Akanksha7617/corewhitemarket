@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <link rel='stylesheet' type='text/css' href='https://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css'>
+    <style>
+        body {
+            background: #eee !important;
+        }
+
+        .wrapper {
+            margin-top: 80px;
+            margin-bottom: 80px;
+        }
+
+        .form-signin {
+            max-width: 380px;
+            padding: 15px 35px 45px;
+            margin: 0 auto;
+            background-color: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .form-signin .form-signin-heading,
+        .form-signin .checkbox {
+            margin-bottom: 30px;
+        }
+
+        .form-signin .checkbox {
+            font-weight: normal;
+        }
+
+        .form-signin .form-control {
+            position: relative;
+            font-size: 16px;
+            height: auto;
+            padding: 10px;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        .form-signin .form-control:focus {
+            z-index: 2;
+        }
+
+        .form-signin input[type=text] {
+            margin-bottom: -1px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .form-signin input[type=password] {
+            margin-bottom: 20px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+    </style>
+    <meta charset='UTF-8'>
+    <title></title>
+</head>
+
+<body>
+    <div class="wrapper">
+        <form id='theForm' class="form-signin">
+            <h2 class="form-signin-heading">Make Payment</h2>
+            <input id='amount' type="number" class="form-control" name="amount" placeholder="1000" required=""
+                autofocus="" />
+            <P>please don't enter decimal values</P>
+
+            <button id='send' style='margin-top: 2rem' class="btn btn-lg btn-primary btn-block"
+                type="submit">Pay</button>
+            <div id='link-div'></div>
+        </form>
+    </div>
+</body>
+<script>
+    var isProd = window.location.protocol === 'https:'
+    // var isProd =true
+    var button = document.getElementById('send')
+    document.getElementById('theForm').addEventListener('submit', (e) => {
+        e.preventDefault()
+        document.getElementById('link-div').innerHTML = ''
+        button.disabled = true
+        button.innerText = 'Requesting a new link ...'
+        fetch(isProd ? `https://u7xsb7k4m9.execute-api.ap-south-1.amazonaws.com/total-pay/coremarket?amount=${document.getElementById('amount').value}.00` : `http://localhost:3001/total-pay/coremarket?amount=${document.getElementById('amount').value}.00`, {
+            method: 'GET',
+        })
+            .then((res) => {
+                button.innerText = 'Link ready!'
+                setTimeout(() => {
+                    button.innerText = 'Get Payment Link'
+                    button.disabled = false
+                }, 500)
+                res.json().then(data => {
+                    document.getElementById('link-div').innerHTML = `
+          <h5>Your payment link is ready </h5>
+          <a href='${data.redirect_url}'>Pay here</a>
+        `
+                });
+            })
+    })
+
+</script>
+
+</html>
